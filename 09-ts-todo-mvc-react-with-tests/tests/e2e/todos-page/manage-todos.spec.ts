@@ -1,17 +1,29 @@
 import { todosEndpoint, getUserEndpoint, pageUrl } from '../../../src/consts/urls';
 
-function authorize() {
+function interceptEmptyTodosList() {
+  cy.intercept(
+      'GET',
+      todosEndpoint,
+      { fixture: 'empty-todos-list.response.json' }
+  ).as('initialTodos');
+}
+
+function interceptSingleTodosList() {
+  cy.intercept(
+      'GET',
+      todosEndpoint,
+      { fixture: 'single-todos-list.response.json' }
+  ).as('initialTodos');
+}
+
+function authorize(interception : () => void) {
   cy.intercept(
     'GET',
     getUserEndpoint,
     { fixture: 'user.response.json' }
   ).as('authorize');
 
-  cy.intercept(
-    'GET',
-    todosEndpoint,
-    { fixture: 'empty-todos-list.response.json' }
-  ).as('initialTodos');
+  interception();
 
   cy.visit(pageUrl)
     .wait('@authorize')
@@ -40,7 +52,7 @@ describe('Manage Todos', () => {
 
       const itemText = Math.random().toString() + '_' + Date.now();
 
-      authorize();
+      authorize(interceptEmptyTodosList);
       cy.get('[data-test-id=create-new-todo-form]').should('be.visible');
       cy.get('[data-test-id=create-new-todo-form__todo-text-input]').type(itemText);
       cy.get('[data-test-id=create-new-todo-form]').submit();
@@ -53,6 +65,20 @@ describe('Manage Todos', () => {
       cy.get('[data-test-id=todo-item__checked-checkbox]').should('not.be.checked');
       cy.get('[data-test-id=todo-item__text-input]').should('have.value', itemText);
       cy.get('[data-test-id=todo-item__remove-action]').should('be.visible');
+    });
+  });
+});
+
+describe('Delete Todos', () => {
+  context('Delete', () => {
+    it('Delete Todo', () => {
+      authorize(interceptSingleTodosList);
+
+      cy.get('[data-test-id=create-new-todo-form]').should('be.visible');
+      cy.get('[data-test-id=todo-item]').should('be.visible');
+      cy.get('[data-test-id=todo-item__remove-action]').should('be.visible');
+      cy.get('[data-test-id=todo-item__remove-action]').click({ force: true });
+      cy.get('[data-test-id=todo-item]').should('not.exist');
     });
   });
 });
