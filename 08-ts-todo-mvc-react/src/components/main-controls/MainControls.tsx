@@ -1,17 +1,21 @@
 // HOME WORK COMPONENT! Please don't rewrite me during lecture!
-import React, { createRef } from 'react';
+import React, { FormEvent, createRef, RefObject } from 'react';
 
 // HOME WORK COMPONENT! Please don't rewrite me during lecture!
-export class MainControls extends React.Component {
-  _inputRef = createRef();
+export class MainControls extends React.Component<{
+  addNewTodo: (text: string) => void,
+  markAllAsReady: () => void
+}> {
+  _inputRef: RefObject<HTMLInputElement> = createRef();
 
   // HOME WORK COMPONENT! Please don't rewrite me during lecture!
   render() {
     // HOME WORK COMPONENT! Please don't rewrite me during lecture!
-    const onSubmit = e => {
+    const onSubmit = (e: FormEvent) => {
       e.preventDefault();
-      const input = this._inputRef.current;
-      const currentNewTodoText = input.value.trim();
+      const input: HTMLInputElement | null = this._inputRef.current;
+      if (input == null) return;
+      const currentNewTodoText: string = input.value.trim();
       if (currentNewTodoText) {
         input.value = '';
         this.props.addNewTodo(currentNewTodoText);
@@ -37,7 +41,7 @@ export class MainControls extends React.Component {
             className="main-controls__create-new-input"
             placeholder="What needs to be done?"
             aria-label="Add new item"
-            autoFocus="autofocus"
+            autoFocus={true}
           />
         </form>
       </section>
