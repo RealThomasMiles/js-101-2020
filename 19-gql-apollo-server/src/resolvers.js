@@ -49,6 +49,15 @@ const resolvers = {
       };
       libraries.push(newLibrary);
       return libraries;
+    },
+    updateBookTitle(_, { bookId, newTitle }) {
+      const bookIndex = books.findIndex(book => book.id === bookId);
+      if (bookIndex === -1) {
+        return null;
+      } else {
+        books[bookIndex].title = newTitle;
+        return books[bookIndex];
+      }
     }
   }
 };

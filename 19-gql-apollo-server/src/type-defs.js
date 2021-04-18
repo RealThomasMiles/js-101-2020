@@ -31,6 +31,7 @@ const typeDefs = gql`
 
     type Mutation {
         addLibrary(name: String!, bookIds: [String]!): [Library]
+        updateBookTitle(bookId: String!, newTitle: String!) : Book
     }
 `;
 
